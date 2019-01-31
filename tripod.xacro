@@ -1,0 +1,364 @@
+<?xml version="1.0"?>
+<!-- Revolute-Revolute Manipulator -->
+<robot name="3legged_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="PI" value="3.1415926535897931"/>
+  <xacro:property name="config_poly_A" value="0.16 0 0" />
+  <xacro:property name="config_poly_B" value="-0.08 0.138 0" />
+  <xacro:property name="config_poly_C" value="0.8 0.138 0" />
+
+  <xacro:property name="platform_height" value="0.41"/>
+
+  <xacro:property name="platform_pos" value="0 0 ${platform_height}" />
+  <xacro:property name="platform_or" value="0 0 0"/>
+  <!-- generalized coordinates these can be calculated separately in many cases-->
+  <xacro:property name="theta_hip_1_a" value="0" />
+  <xacro:property name="theta_hip_1_b" value="0" />
+  <xacro:property name="theta_hip_1_c" value="0" />
+
+  <xacro:property name="theta_hip_2_a" value="0" />
+  <xacro:property name="theta_hip_2_b" value="0" />
+  <xacro:property name="theta_hip_2_c" value="0" />
+
+  <xacro:property name="theta_knee_a" value="0" />
+  <xacro:property name="theta_knee_b" value="0" />
+  <xacro:property name="theta_knee_c" value="0" />
+
+  <xacro:property name="platform_mass" value="3" />
+  <xacro:property name="hip_mass" value="0.1"/>
+  <xacro:property name="leg_mass" value="0.5" />
+  <xacro:property name="platform_thickness" value="0.02"/>
+  <xacro:property name="platform_radius" value="0.12" />
+  <xacro:property name="hip_length" value="0.04" />
+  <xacro:property name="hip_thickness" value="0.02" />
+  <xacro:property name="leg_length" value="0.2"/>
+  <xacro:property name="leg_thickness" value="0.02" />
+
+  <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+  <!-- <xacro:include filename="$(find rrbot_description)/urdf/rrbot.gazebo" /> -->
+  <!-- Import Rviz colors -->
+  <!-- <xacro:include filename="$(find rrbot_description)/urdf/materials.xacro" /> -->
+
+  <link name="platform">
+    <collision>
+      <!--origin xyz="${platform_pos}" rpy="${platform_or}"/-->
+      <origin xyz="0 0 0.4" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${platform_radius - 0.01}" length="${platform_thickness}"/> 
+      </geometry>
+    </collision>
+
+    <visual>
+      <!--origin xyz="${platform_pos}" rpy="${platform_or}"/-->
+      <origin xyz="0 0 0.4" rpy="0 0 0"/>
+      <geometry>
+    <cylinder radius="${platform_radius}" length="${platform_thickness}"/> 
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <inertial>
+      <!--origin xyz="${platform_pos}" rpy="${platform_or}"/-->
+      <origin xyz="0 0 0.4" rpy="0 0 0"/>
+      <mass value="${platform_mass}"/>
+      <inertia
+    ixx="${platform_mass / 12.0 * (platform_thickness*platform_thickness) + platform_mass / 4 * platform_radius*platform_radius}"
+    ixy="0.0"
+    ixz="0.0"
+    iyy="${platform_mass / 12.0 * (platform_thickness*platform_thickness) + platform_mass / 4 * platform_radius*platform_radius}"
+    iyz="0.0"
+    izz="${platform_mass / 2 * platform_radius * platform_radius}"/>
+    </inertial>
+  </link>
+
+  <joint name="hip_joint_a" type="continuous">
+    <parent link="platform"/>
+    <child link="hip_link_a"/>
+    <!--origin xyz="${platform_radius} 0 0" /-->
+    <origin xyz="${platform_radius} 0 0" />
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="hip_joint_b" type="continuous">
+    <parent link="platform"/>
+    <child link="hip_link_b"/>
+    <origin xyz="-0.06 0.1039 0" />
+    <axis xyz="0 0 1" />
+  </joint>
+
+  <joint name="hip_joint_c" type="continuous">
+    <parent link="platform"/>
+    <child link="hip_link_c"/>
+    <origin xyz="-0.06 -0.1039 0" />
+    <axis xyz="0 0 1" />
+  </joint>
+
+  <link name="hip_link_a">
+    <collision>
+      <origin xyz="${hip_length/ 2}  0 ${platform_height}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${hip_length} ${hip_thickness} ${hip_thickness}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="${hip_length/ 2}  0 ${platform_height}" rpy="0 0 0"/>
+      <geometry>
+    <box size="${hip_length} ${hip_thickness} ${hip_thickness}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="${hip_length/ 2}  0 ${platform_height}" rpy="0 0 0"/>
+      <mass value="${hip_mass}"/>
+      <inertia
+        ixx="${hip_mass / 12.0 * (hip_thickness*hip_thickness + hip_thickness*hip_thickness)}" ixy="0.0" ixz="0.0"
+        iyy="${hip_mass / 12.0 * (hip_length*hip_length + hip_thickness*hip_thickness)}" iyz="0.0"
+        izz="${hip_mass / 12.0 * (hip_length*hip_length + hip_thickness*hip_thickness)}"/>
+    </inertial>
+  </link>
+
+  <link name="hip_link_b">
+    <collision>
+      <origin xyz="-0.01 0.0173 ${platform_height}" rpy="0 0 2.04"/>
+      <geometry>
+        <box size="${hip_length} ${hip_thickness} ${hip_thickness}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="-0.01 0.0173 ${platform_height}" rpy="0 0 2.04"/>
+      <geometry>
+    <box size="${hip_length} ${hip_thickness} ${hip_thickness}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="-0.01 0.0173 ${platform_height}" rpy="0 0 2.04"/>
+      <mass value="${hip_mass}"/>
+      <inertia
+        ixx="${hip_mass / 12.0 * (hip_thickness*hip_thickness + hip_thickness*hip_thickness)}" ixy="0.0" ixz="0.0"
+        iyy="${hip_mass / 12.0 * (hip_length*hip_length + hip_thickness*hip_thickness)}" iyz="0.0"
+        izz="${hip_mass / 12.0 * (hip_length*hip_length + hip_thickness*hip_thickness)}"/>
+    </inertial>
+  </link>
+
+  <link name="hip_link_c">
+    <collision>
+      <origin xyz="-0.01 -0.0173 ${platform_height}" rpy="0 0 4.188"/>
+      <geometry>
+        <box size="${hip_length} ${hip_thickness} ${hip_thickness}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="-0.01 -0.0173 ${platform_height}" rpy="0 0 4.188"/>
+      <geometry>
+    <box size="${hip_length} ${hip_thickness} ${hip_thickness}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="-0.01 -0.0173 ${platform_height}" rpy="0 0 4.188"/>
+      <mass value="${hip_mass}"/>
+      <inertia
+        ixx="${hip_mass / 12.0 * (hip_thickness*hip_thickness + hip_thickness*hip_thickness)}" ixy="0.0" ixz="0.0"
+        iyy="${hip_mass / 12.0 * (hip_length*hip_length + hip_thickness*hip_thickness)}" iyz="0.0"
+        izz="${hip_mass / 12.0 * (hip_length*hip_length + hip_thickness*hip_thickness)}"/>
+    </inertial>
+  </link>
+
+  <joint name="hip_joint_a_2" type="continuous">
+    <parent link="hip_link_a"/>
+    <child link="thigh_link_a"/>
+    <origin xyz="${hip_length+ leg_thickness / 2} 0 ${platform_height}"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <joint name="hip_joint_b_2" type="continuous">
+    <parent link="hip_link_b"/>
+    <child link="thigh_link_b"/>
+    <origin xyz="-0.025 0.043 ${platform_height}"/>
+    <axis xyz="0.5 0.8660254 0"/>
+  </joint>
+
+  <joint name="hip_joint_c_2" type="continuous">
+    <parent link="hip_link_c"/>
+    <child link="thigh_link_c"/>
+    <origin xyz="-0.025 -0.043 ${platform_height}"/>
+    <axis xyz="0.5 -0.8660254 0"/>
+  </joint>
+
+  <link name="thigh_link_a">
+    <collision>
+      <origin xyz="${leg_thickness / 2}  0 ${- leg_length/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="${leg_thickness / 2}  0 ${- leg_length/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="${leg_thickness/ 2}  0 ${ - leg_length/2}" rpy="0 0 0"/>
+      <mass value="${leg_mass}"/>
+      <inertia
+        ixx="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" ixy="0.0" ixz="0.0"
+        iyy="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" iyz="0.0"
+        izz="${leg_mass / 12.0 * (leg_thickness*leg_thickness + leg_thickness*leg_thickness)}"/>
+    </inertial>
+  </link>
+
+  <link name="thigh_link_b">
+    <collision>
+      <origin xyz="-0.005  0.008 ${- leg_length/2}" rpy="0 0 2.04"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="-0.005  0.008 ${- leg_length/2}" rpy="0 0 2.04"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="-0.005  0.008 ${- leg_length/2}" rpy="0 0 2.04"/>
+      <mass value="${leg_mass}"/>
+      <inertia
+        ixx="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" ixy="0.0" ixz="0.0"
+        iyy="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" iyz="0.0"
+        izz="${leg_mass / 12.0 * (leg_thickness*leg_thickness + leg_thickness*leg_thickness)}"/>
+    </inertial>
+  </link>
+
+  <link name="thigh_link_c">
+    <collision>
+      <origin xyz="-0.005  -0.008 ${- leg_length/2}" rpy="0 0 4.188"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="-0.005  -0.008 ${- leg_length/2}" rpy="0 0 4.188"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="-0.005  -0.008 ${- leg_length/2}" rpy="0 0 4.188"/>
+      <mass value="${leg_mass}"/>
+      <inertia
+        ixx="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" ixy="0.0" ixz="0.0"
+        iyy="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" iyz="0.0"
+        izz="${leg_mass / 12.0 * (leg_thickness*leg_thickness + leg_thickness*leg_thickness)}"/>
+    </inertial>
+  </link>
+  <!-- knees -->
+  <joint name="knee_joint_a" type="continuous">
+    <parent link="thigh_link_a"/>
+    <child link="leg_link_a"/>
+    <origin xyz="0.01 0 ${- leg_length -0.01}"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <joint name="knee_joint_b" type="continuous">
+    <parent link="thigh_link_b"/>
+    <child link="leg_link_b"/>
+    <origin xyz="-0.005 0.008 ${- leg_length -0.01}"/>
+    <axis xyz="0.5 0.8660254 0"/>
+  </joint>
+
+  <joint name="knee_joint_c" type="continuous">
+    <parent link="thigh_link_c"/>
+    <child link="leg_link_c"/>
+    <origin xyz="-0.005 -0.008 ${- leg_length -0.01}"/>
+    <axis xyz="0.5 -0.8660254 0"/>
+  </joint>
+
+  <link name="leg_link_a">
+    <collision>
+      <origin xyz="0  0 ${- leg_length/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0  0 ${- leg_length/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="0  0 ${- leg_length/2}" rpy="0 0 0"/>
+      <mass value="${leg_mass}"/>
+      <inertia
+        ixx="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" ixy="0.0" ixz="0.0"
+        iyy="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" iyz="0.0"
+        izz="${leg_mass / 12.0 * (leg_thickness*leg_thickness + leg_thickness*leg_thickness)}"/>
+    </inertial>
+  </link>
+
+    <link name="leg_link_b">
+    <collision>
+      <origin xyz="0  0 ${- leg_length/2}" rpy="0 0 2.04"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0  0 ${- leg_length/2}" rpy="0 0 2.04"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="0  0 ${- leg_length/2}" rpy="0 0 2.04"/>
+      <mass value="${leg_mass}"/>
+      <inertia
+        ixx="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" ixy="0.0" ixz="0.0"
+        iyy="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" iyz="0.0"
+        izz="${leg_mass / 12.0 * (leg_thickness*leg_thickness + leg_thickness*leg_thickness)}"/>
+    </inertial>
+  </link>
+
+    <link name="leg_link_c">
+    <collision>
+      <origin xyz="0  0 ${- leg_length/2}" rpy="0 0 4.188"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0  0 ${- leg_length/2}" rpy="0 0 4.188"/>
+      <geometry>
+        <box size="${leg_thickness} ${leg_thickness} ${ - leg_length}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="0  0 ${- leg_length/2}" rpy="0 0 4.188"/>
+      <mass value="${leg_mass}"/>
+      <inertia
+        ixx="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" ixy="0.0" ixz="0.0"
+        iyy="${leg_mass / 12.0 * (leg_length*leg_length + leg_thickness*leg_thickness)}" iyz="0.0"
+        izz="${leg_mass / 12.0 * (leg_thickness*leg_thickness + leg_thickness*leg_thickness)}"/>
+    </inertial>
+  </link>
+
+</robot>
